@@ -87,6 +87,7 @@ RUN set -eux \
   ; echo '/usr/local/bin/nu' >> /etc/shells \
   ; git clone --depth=3 https://github.com/fj0r/nushell.git /root/.config/nushell \
   ; opwd=$PWD; cd /root/.config/nushell; git log -1 --date=iso; cd $opwd \
+  ; nu -c "plugin add /usr/local/bin/nu_plugin_query" \
   \
   ; dua_ver=$(curl --retry 3 -fsSL https://api.github.com/repos/Byron/dua-cli/releases/latest | jq -r '.tag_name') \
   ; dua_url="https://github.com/Byron/dua-cli/releases/download/${dua_ver}/dua-${dua_ver}-x86_64-unknown-linux-musl.tar.gz" \
