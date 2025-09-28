@@ -1,5 +1,5 @@
 export def 'docker-entrypoint fetch' [] {
-    curl -fsSLo docker-entrypoint.sh.origin https://raw.githubusercontent.com/docker-library/postgres/master/17/bookworm/docker-entrypoint.sh
+    curl -fsSLo docker-entrypoint.sh.origin https://raw.githubusercontent.com/docker-library/postgres/master/18/trixie/docker-entrypoint.sh
 }
 
 export def 'docker-entrypoint patch' [] {
@@ -23,7 +23,7 @@ export def 'docker-entrypoint patch' [] {
     | items {|k,v|
         let offset = $v.offset? | default 0
         $o
-        | filter {|x| $x.item | str contains $v.pattern }
+        | where {|x| $x.item | str contains $v.pattern }
         | last
         | get 'index'
         | $in + $offset
@@ -103,7 +103,7 @@ export def 'test' [...a:string@cmpl-test] {
             $args ++= [-e "POSTGRES_MAX_MEMORY_USAGE=16000,32"]
         }
     }
-    pp $env.CNTRCTL run ...$args 'ghcr.lizzie.fun/fj0r/0x:pg17'
+    pp $env.CNTRCTL run ...$args 'ghcr.lizzie.fun/fj0r/0x:pg18'
 }
 
 export def 'backup' [] {
