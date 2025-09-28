@@ -1,4 +1,4 @@
-name: postgres 17
+name: postgres 18
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -8,7 +8,7 @@ name: postgres 17
 on:
   workflow_run:
     workflows: [ pg_rx ]
-    branches: [ main, pg_rx ]
+    branches: [ main, pg_rx, '18' ]
     types:
       - completed
   workflow_dispatch:
@@ -55,29 +55,29 @@ jobs:
         with:
           filters: |
             src:
-              - '17.Dockerfile'
+              - '18.Dockerfile'
             gis:
               - 'gis.Dockerfile'
 
-      - name: Build pg 17
+      - name: Build pg 18
         # steps.changes.outputs.src == 'true' ||
         uses: docker/build-push-action@v4
         with:
-          file: 17.Dockerfile
+          file: 18.Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:17
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:18
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            PG_VERSION_MAJOR=17
-            BASEIMAGE=ghcr.io/fj0r/pg:17_ext
+            PG_VERSION_MAJOR=18
+            BASEIMAGE=ghcr.io/fj0r/pg:18_ext
 
       - name: Build pg gis
         uses: docker/build-push-action@v4
         with:
           file: gis.Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:17gis
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:18gis
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            BASEIMAGE=ghcr.io/fj0r/pg:17
+            BASEIMAGE=ghcr.io/fj0r/pg:18
 

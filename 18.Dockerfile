@@ -1,10 +1,10 @@
-ARG PG_VERSION_MAJOR=17
-ARG BASEIMAGE=ghcr.io/fj0r/0x:pg17_ext
+ARG PG_VERSION_MAJOR=18
+ARG BASEIMAGE=ghcr.io/fj0r/0x:pg18_ext
 
 FROM ${BASEIMAGE} AS pg_ext
 
-FROM postgres:${PG_VERSION_MAJOR}-bookworm
-ARG PG_VERSION_MAJOR=17
+FROM postgres:${PG_VERSION_MAJOR}
+ARG PG_VERSION_MAJOR=18
 
 
 COPY --from=pg_ext /out/lib/postgresql/${PG_VERSION_MAJOR}/lib/* /usr/lib/postgresql/${PG_VERSION_MAJOR}/lib
@@ -51,17 +51,13 @@ RUN set -eux \
   ; apt-get update \
   ; apt-get install -y --no-install-recommends \
       postgresql-plpython3-${PG_MAJOR} \
-      postgresql-${PG_MAJOR}-mysql-fdw \
       postgresql-${PG_MAJOR}-repack \
       postgresql-${PG_MAJOR}-wal2json \
-      postgresql-${PG_MAJOR}-rum \
-      #postgresql-${PG_MAJOR}-similarity \
       postgresql-${PG_MAJOR}-rational \
       postgresql-${PG_MAJOR}-cron \
       postgresql-${PG_MAJOR}-extra-window-functions \
       postgresql-${PG_MAJOR}-first-last-agg \
       postgresql-${PG_MAJOR}-ip4r \
-      postgresql-${PG_MAJOR}-hll \
       postgresql-${PG_MAJOR}-jsquery \
       postgresql-${PG_MAJOR}-pgaudit \
       pgxnclient \
