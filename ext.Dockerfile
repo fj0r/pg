@@ -47,22 +47,22 @@ RUN set -eux \
 # pg_jsonschema
 ######################
 
-FROM ${BASEIMAGE} AS builder-jsonschema
-ARG PG_VERSION_MAJOR=18
-RUN set -eux \
-  ; git clone --depth=1 https://github.com/supabase/pg_jsonschema.git /tmp/pg_jsonschema \
-  ; cd /tmp/pg_jsonschema \
-  ; pgrx_ver=$(cat Cargo.toml | rg 'pgrx\s*=\s*"=*([0-9\.]+)"' -or '$1') \
-  ; cargo install --locked cargo-pgrx --version "${pgrx_ver}" --force \
-  ; cargo pgrx package --pg-config "/usr/lib/postgresql/${PG_VERSION_MAJOR}/bin/pg_config" \
-  \
-  ; mkdir -p /out/pg_jsonschema/lib/postgresql/${PG_VERSION_MAJOR}/lib \
-  ; cp target/release/pg_jsonschema-pg${PG_VERSION_MAJOR}/usr/lib/postgresql/${PG_VERSION_MAJOR}/lib/* /out/pg_jsonschema/lib/postgresql/${PG_VERSION_MAJOR}/lib \
-  ; mkdir -p /out/pg_jsonschema/share/postgresql/${PG_VERSION_MAJOR}/extension \
-  ; cp target/release/pg_jsonschema-pg${PG_VERSION_MAJOR}/usr/share/postgresql/${PG_VERSION_MAJOR}/extension/* /out/pg_jsonschema/share/postgresql/${PG_VERSION_MAJOR}/extension \
-  ; cd /out/pg_jsonschema \
-  ; tar zcvf /tmp/pg_jsonschema.tar.gz * \
-  ;
+# FROM ${BASEIMAGE} AS builder-jsonschema
+# ARG PG_VERSION_MAJOR=18
+# RUN set -eux \
+#   ; git clone --depth=1 https://github.com/supabase/pg_jsonschema.git /tmp/pg_jsonschema \
+#   ; cd /tmp/pg_jsonschema \
+#   ; pgrx_ver=$(cat Cargo.toml | rg 'pgrx\s*=\s*"=*([0-9\.]+)"' -or '$1') \
+#   ; cargo install --locked cargo-pgrx --version "${pgrx_ver}" --force \
+#   ; cargo pgrx package --pg-config "/usr/lib/postgresql/${PG_VERSION_MAJOR}/bin/pg_config" \
+#   \
+#   ; mkdir -p /out/pg_jsonschema/lib/postgresql/${PG_VERSION_MAJOR}/lib \
+#   ; cp target/release/pg_jsonschema-pg${PG_VERSION_MAJOR}/usr/lib/postgresql/${PG_VERSION_MAJOR}/lib/* /out/pg_jsonschema/lib/postgresql/${PG_VERSION_MAJOR}/lib \
+#   ; mkdir -p /out/pg_jsonschema/share/postgresql/${PG_VERSION_MAJOR}/extension \
+#   ; cp target/release/pg_jsonschema-pg${PG_VERSION_MAJOR}/usr/share/postgresql/${PG_VERSION_MAJOR}/extension/* /out/pg_jsonschema/share/postgresql/${PG_VERSION_MAJOR}/extension \
+#   ; cd /out/pg_jsonschema \
+#   ; tar zcvf /tmp/pg_jsonschema.tar.gz * \
+#   ;
 
 ######################
 # pg_graphql
@@ -96,8 +96,6 @@ RUN set -eux \
   ; ver=$(curl --retry 3 -fsSL https://api.github.com/repos/pgvector/pgvector/tags | jq -r '.[0].name') \
   ; curl --retry 3 -fsSL https://github.com/pgvector/pgvector/archive/refs/tags/${ver}.tar.gz \
     | tar zxf - -C . --strip-components=1 \
-  ; export PG_CFLAGS="-Wall -Wextra -Werror -Wno-unused-parameter -Wno-sign-compare" \
-  ; echo "trusted = true" >> vector.control \
   ; make clean -j \
   ; make USE_PGXS=1 OPTFLAGS="" -j \
   \
@@ -140,11 +138,11 @@ COPY --from=builder-pg_vector /tmp/pg_vector.tar.gz /tmp
 # Copy the ParadeDB extensions from their builder stages
 # COPY --from=builder-paradedb /tmp/paradedb/pg_search.tar.gz /tmp
 # COPY --from=builder-analytics /tmp/pg_analytics.tar.gz /tmp
-COPY --from=builder-jsonschema /tmp/pg_jsonschema.tar.gz /tmp
+# COPY --from=builder-jsonschema /tmp/pg_jsonschema.tar.gz /tmp
 #COPY --from=builder-paradedb /tmp/pg_graphql.tar.gz /tmp
 
 RUN set -eux \
-  ; for x in duckdb vector jsonschema \
+  ; for x in duckdb vector \
   ; do tar zxvf /tmp/pg_${x}.tar.gz -C /out \
   ; done \
   ;

@@ -107,15 +107,6 @@ RUN set -eux \
   ; make install \
   \
   #; cd $build_dir \
-  #; mkdir pgvector \
-  #; cd pgvector \
-  #; pgvector_ver=$(curl --retry 3 -fsSL https://api.github.com/repos/pgvector/pgvector/tags | jq -r '.[0].name') \
-  #; curl --retry 3 -fsSL https://github.com/pgvector/pgvector/archive/refs/tags/${pgvector_ver}.tar.gz \
-  #  | tar zxf - -C . --strip-components=1 \
-  #; make \
-  #; make install \
-  \
-  #; cd $build_dir \
   #; duckdb_ver=$(curl --retry 3 -fsSL https://api.github.com/repos/duckdb/duckdb/releases/latest | jq -r '.tag_name') \
   #; curl --retry 3 -fsSLO https://github.com/duckdb/duckdb/releases/download/${duckdb_ver}/libduckdb-linux-amd64.zip \
   #; unzip -d . libduckdb-linux-amd64.zip \
