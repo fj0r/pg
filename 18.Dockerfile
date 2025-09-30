@@ -180,13 +180,15 @@ COPY .psqlrc /root
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN ln -sf usr/local/bin/docker-entrypoint.sh / # backwards compat
 
+# io_uring
+ENV PGCONF_IO_METHOD=worker
 ENV PGCONF_EFFECTIVE_CACHE_SIZE=8GB
 ENV PGCONF_EFFECTIVE_IO_CONCURRENCY=200
 ENV PGCONF_RANDOM_PAGE_COST=1.1
 ENV PGCONF_WAL_LEVEL=logical
 ENV PGCONF_MAX_REPLICATION_SLOTS=10
 # ,citus,timescaledb
-ENV PGCONF_SHARED_PRELOAD_LIBRARIES="'pg_stat_statements,pg_net,pg_cron,pg_search,pg_duckdb'"
+ENV PGCONF_SHARED_PRELOAD_LIBRARIES="'pg_stat_statements,pg_net,pg_cron,pg_duckdb'"
 ENV PGCONF_LOG_MIN_DURATION_STATEMENT=1000
 ENV PARADEDB_TELEMETRY=false
 
