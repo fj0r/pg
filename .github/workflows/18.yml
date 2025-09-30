@@ -6,11 +6,8 @@ name: postgres 18
 # documentation.
 
 on:
-  workflow_run:
-    workflows: [ pg_rx ]
-    branches: [ main, pg_rx, '18' ]
-    types:
-      - completed
+  push:
+    branches: [ main, pg_rx ]
   workflow_dispatch:
     inputs: {}
 

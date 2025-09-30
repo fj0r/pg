@@ -89,8 +89,13 @@ RUN set -eux \
   ; dua_url="https://github.com/Byron/dua-cli/releases/download/${dua_ver}/dua-${dua_ver}-x86_64-unknown-linux-musl.tar.gz" \
   ; curl --retry 3 -fsSL ${dua_url} | tar zxf - -C /usr/local/bin --strip-components=1 --wildcards '*/dua' \
   \
+  ; curl --retry 3 -s https://packagecloud.io/install/repositories/timescale/timescaledb/script.deb.sh | bash \
+  ; timescale_pkg=$(apt search timescaledb-[0-9]+-postgresql-${PG_MAJOR} 2>&1 | grep '/' | tail -n 1 | awk -F'/' '{print $1}') \
+  \
   #; curl --retry 3 -fsSL https://install.citusdata.com/community/deb.sh | bash \
   #; citus_pkg=$(apt search postgresql-${PG_MAJOR}-citus 2>&1 | grep '/' | grep -v dbgsym | tail -n 1 | awk -F'/' '{print $1}') \
+  \
+  ; apt-get install -y --no-install-recommends ${timescale_pkg} \
   \
   ; build_dir=/root/build \
   ; mkdir -p $build_dir \
@@ -120,6 +125,15 @@ RUN set -eux \
   #; make \
   #; make install \
   \
+  #; cd $build_dir \
+  #; git clone --depth=1 https://github.com/timescale/timescaledb.git \
+  #; cd timescaledb \
+  #; git checkout main \
+  #; ./bootstrap \
+  #; cd build \
+  #; make \
+  #; make install \
+  #\
   #; cd $build_dir \
   #; git clone --depth=1 https://github.com/sraoss/pg_ivm.git \
   #; cd pg_ivm \
@@ -165,16 +179,24 @@ RUN set -eux \
 #   ;
 
 ### paradedb
-# RUN set -eux \
-#   ; mkdir /tmp/paradedb \
-#   ; cd /tmp/paradedb \
-#   ; code_name=$(cat /etc/os-release | grep '^VERSION_CODENAME' | cut -d '=' -f 2) \
-#   ; version=$(curl --retry 3 -fsSL -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/paradedb/paradedb/releases | jq -r '.[0].tag_name' | cut -c 2-) \
-#   ; curl --retry 3 -fsSL https://github.com/paradedb/paradedb/releases/download/v${version}/postgresql-${PG_VERSION_MAJOR}-pg-search_${version}-1PARADEDB-${code_name}_amd64.deb -o pg-search.deb \
-#   ; dpkg -i pg-search.deb \
-#   ; cd /tmp \
-#   ; rm -rf paradedb \
-#   ;
+RUN set -eux \
+  ; mkdir /tmp/paradedb \
+  ; cd /tmp/paradedb \
+  ; code_name=$(cat /etc/os-release | grep '^VERSION_CODENAME' | cut -d '=' -f 2) \
+  ; version=$(curl --retry 3 -fsSL -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/paradedb/paradedb/releases | jq -r '.[0].tag_name' | cut -c 2-) \
+  ; curl --retry 3 -fsSL https://github.com/paradedb/paradedb/releases/download/v${version}/postgresql-${PG_VERSION_MAJOR}-pg-search_${version}-1PARADEDB-${code_name}_amd64.deb -o pg-search.deb \
+  ; dpkg -i pg-search.deb \
+  ; cd /tmp \
+  ; rm -rf paradedb \
+  \
+  ; mkdir /tmp/vchord \
+  ; cd /tmp/vchord \
+  ; version=$(curl --retry 3 -fsSL -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/tensorchord/VectorChord/releases | jq -r '.[0].tag_name') \
+  ; curl --retry 3 -fsSL https://github.com/tensorchord/VectorChord/releases/download/${version}/postgresql-${PG_VERSION_MAJOR}-vchord_${version}-1_$(dpkg --print-architecture).deb -o vchord.deb \
+  ; dpkg -i vchord.deb \
+  ; cd /tmp \
+  ; rm -rf vchord \
+  ;
 
 COPY .psqlrc /root
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
@@ -186,7 +208,7 @@ ENV PGCONF_RANDOM_PAGE_COST=1.1
 ENV PGCONF_WAL_LEVEL=logical
 ENV PGCONF_MAX_REPLICATION_SLOTS=10
 # ,citus,timescaledb
-ENV PGCONF_SHARED_PRELOAD_LIBRARIES="'pg_stat_statements,pg_net,pg_cron,pg_search,pg_duckdb'"
+ENV PGCONF_SHARED_PRELOAD_LIBRARIES="'pg_stat_statements,pg_net,pg_cron,pg_search,pg_duckdb,vchord.so'"
 ENV PGCONF_LOG_MIN_DURATION_STATEMENT=1000
 ENV PARADEDB_TELEMETRY=false
 
