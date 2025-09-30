@@ -1,4 +1,4 @@
-name: pg_rx
+name: postgres 18
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -7,7 +7,7 @@ name: pg_rx
 
 on:
   push:
-    branches: [ main, pg_rx ]
+    branches: [ '18', pg18 ]
   workflow_dispatch:
     inputs: {}
 
@@ -52,31 +52,29 @@ jobs:
         with:
           filters: |
             src:
-              - 'rx.Dockerfile'
+              - '18.Dockerfile'
+            gis:
+              - 'gis.Dockerfile'
 
-      - name: Build pg_rx
-        # steps.changes.outputs.src == 'true'
-        if:  "!contains(github.event.head_commit.message, '-pg_rx')"
+      - name: Build pg 18
+        # steps.changes.outputs.src == 'true' ||
         uses: docker/build-push-action@v4
         with:
-          file: rx.Dockerfile
+          file: 18.Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:18_rx
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:18
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             PG_VERSION_MAJOR=18
-            PGRX_VERSION=0.16.0
+            BASEIMAGE=ghcr.io/fj0r/pg:18_ext
 
-      - name: Build pg_ext
-        # steps.changes.outputs.src == 'true'
-        if: "!contains(github.event.head_commit.message, '-pg_rx')"
+      - name: Build pg gis
         uses: docker/build-push-action@v4
         with:
-          file: ext.Dockerfile
+          file: gis.Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:18_ext
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:18gis
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            PG_VERSION_MAJOR=18
-            BASEIMAGE=ghcr.io/fj0r/pg:18_rx
+            BASEIMAGE=ghcr.io/fj0r/pg:18
 
