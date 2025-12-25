@@ -74,7 +74,7 @@ RUN set -eux \
       pydantic PyParsing \
       boltons decorator \
       numpy httpx pyyaml \
-      pyiceberg[s3fs,pyarrow,pandas] \
+      pyiceberg[s3fs,pyarrow] \
   \
   ; dua_ver=$(curl --retry 3 -fsSL https://api.github.com/repos/Byron/dua-cli/releases/latest | jq -r '.tag_name') \
   ; dua_url="https://github.com/Byron/dua-cli/releases/download/${dua_ver}/dua-${dua_ver}-x86_64-unknown-linux-musl.tar.gz" \
