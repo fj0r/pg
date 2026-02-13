@@ -85,10 +85,6 @@ RUN set -eux \
   ; opwd=$PWD; cd /root/.config/nushell; git log -1 --date=iso; cd $opwd \
   ; nu -c "plugin add /usr/local/bin/nu_plugin_query" \
   \
-  ; dua_ver=$(curl --retry 3 -fsSL https://api.github.com/repos/Byron/dua-cli/releases/latest | jq -r '.tag_name') \
-  ; dua_url="https://github.com/Byron/dua-cli/releases/download/${dua_ver}/dua-${dua_ver}-x86_64-unknown-linux-musl.tar.gz" \
-  ; curl --retry 3 -fsSL ${dua_url} | tar zxf - -C /usr/local/bin --strip-components=1 --wildcards '*/dua' \
-  \
   #; curl --retry 3 -fsSL https://install.citusdata.com/community/deb.sh | bash \
   #; citus_pkg=$(apt search postgresql-${PG_MAJOR}-citus 2>&1 | grep '/' | grep -v dbgsym | tail -n 1 | awk -F'/' '{print $1}') \
   \
@@ -164,17 +160,17 @@ RUN set -eux \
 #   ; chmod a+rwX -R /var/lib/postgresql/.duckdb/ \
 #   ;
 
-### paradedb
-# RUN set -eux \
-#   ; mkdir /tmp/paradedb \
-#   ; cd /tmp/paradedb \
-#   ; code_name=$(cat /etc/os-release | grep '^VERSION_CODENAME' | cut -d '=' -f 2) \
-#   ; version=$(curl --retry 3 -fsSL -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/paradedb/paradedb/releases | jq -r '.[0].tag_name' | cut -c 2-) \
-#   ; curl --retry 3 -fsSL https://github.com/paradedb/paradedb/releases/download/v${version}/postgresql-${PG_VERSION_MAJOR}-pg-search_${version}-1PARADEDB-${code_name}_amd64.deb -o pg-search.deb \
-#   ; dpkg -i pg-search.deb \
-#   ; cd /tmp \
-#   ; rm -rf paradedb \
-#   ;
+## paradedb
+RUN set -eux \
+  ; mkdir /tmp/paradedb \
+  ; cd /tmp/paradedb \
+  ; code_name=$(cat /etc/os-release | grep '^VERSION_CODENAME' | cut -d '=' -f 2) \
+  ; version=$(curl --retry 3 -fsSL -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/paradedb/paradedb/releases | jq -r '.[0].tag_name' | cut -c 2-) \
+  ; curl --retry 3 -fsSL https://github.com/paradedb/paradedb/releases/download/v${version}/postgresql-${PG_VERSION_MAJOR}-pg-search_${version}-1PARADEDB-${code_name}_amd64.deb -o pg-search.deb \
+  ; dpkg -i pg-search.deb \
+  ; cd /tmp \
+  ; rm -rf paradedb \
+  ;
 
 COPY .psqlrc /root
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
